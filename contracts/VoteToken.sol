@@ -52,7 +52,6 @@ contract VoteToken is ERC721, Ownable {
     }
     function getVoterId(address owner) public view returns(uint) {
         for (uint i = 1; i <= numVoters; ++i) {
-            // if the voter votes for this specific candidate, we increment the number
             if (voters[i].uaddress == owner)
                 return (i);
         }
@@ -74,7 +73,7 @@ contract VoteToken is ERC721, Ownable {
     
     
     function vote(uint id,address vaddress) eligibleVoter(vaddress) trueCandidate(id)  public{
-        setApprovalForAll(vaddress, true);
+        //setApprovalForAll(vaddress, true);
         uint voterId=getVoterId(vaddress);
         transferFrom(vaddress, candidates[id].caddress , voterId);
         voters[voterId].voted==true;
@@ -87,7 +86,6 @@ contract VoteToken is ERC721, Ownable {
     function getwinner() public view returns (uint) {
         uint winnerID = 1;
         for (uint i = 1; i <= numCandidates; ++i) {
-            // if the voter votes for this specific candidate, we increment the number
             if (totalVotes(i) > totalVotes(winnerID)) {
                 winnerID=i;
             }
