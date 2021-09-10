@@ -37,21 +37,21 @@ contract VoteToken is ERC721, Ownable {
     mapping (uint => Candidate) candidates;
     mapping (uint => Voter) voters;
 
-    function addCandidate(bytes32 name) public {
+    function addCandidate(bytes32 name,address caddress) public {
         // candidateID is the return variable
         uint candidateID = ++numCandidates;
         // Create new Candidate Struct with name and saves it to storage.
-        candidates[candidateID] = Candidate(candidateID,name,msg.sender,true);
+        candidates[candidateID] = Candidate(candidateID,name,caddress,true);
         emit AddedCandidate(candidateID);
     }
-    function addVoter(bytes32 name) public{
+    function addVoter(bytes32 name,address vaddress) public{
         uint voterID = ++numVoters;
-        voters[voterID]=Voter(voterID,name,msg.sender,false);
+        voters[voterID]=Voter(voterID,name,vaddress,false);
         if (balanceOf(voters[voterID].uaddress)==0)
                 _safeMint(voters[voterID].uaddress,voterID);
     }
     function getVoterId(address owner) public view returns(uint) {
-        for (uint i = 1; i < numVoters; i++) {
+        for (uint i = 1; i <= numVoters; ++i) {
             // if the voter votes for this specific candidate, we increment the number
             if (voters[i].uaddress == owner)
                 return (i);
@@ -73,9 +73,10 @@ contract VoteToken is ERC721, Ownable {
     }
     
     
-    function vote(uint id) eligibleVoter(msg.sender) trueCandidate(id)  public{
-        uint voterId=getVoterId(msg.sender);
-        transferFrom(msg.sender, candidates[id].caddress , voterId);
+    function vote(uint id,address vaddress) eligibleVoter(vaddress) trueCandidate(id)  public{
+        setApprovalForAll(vaddress, true);
+        uint voterId=getVoterId(vaddress);
+        transferFrom(vaddress, candidates[id].caddress , voterId);
         voters[voterId].voted==true;
     }
 
@@ -84,8 +85,8 @@ contract VoteToken is ERC721, Ownable {
     }
 
     function getwinner() public view returns (uint) {
-        uint winnerID = 0;
-        for (uint i = 1; i < numCandidates; i++) {
+        uint winnerID = 1;
+        for (uint i = 1; i <= numCandidates; ++i) {
             // if the voter votes for this specific candidate, we increment the number
             if (totalVotes(i) > totalVotes(winnerID)) {
                 winnerID=i;
@@ -93,4 +94,19 @@ contract VoteToken is ERC721, Ownable {
         }
         return winnerID;
     }
+
+    function getNumOfCandidates() public view returns(uint) {
+        return numCandidates;
+    }
+
+    function getNumOfVoters() public view returns(uint) {
+        return numVoters;
+    }
+    function getCandidate(uint candidateID) public view returns (uint,bytes32,address) {
+        return (candidateID,candidates[candidateID].name,candidates[candidateID].caddress);
+    }
+    function getVoter(uint voterId) public view returns (uint,bytes32,address) {
+        return (voterId,voters[voterId].uid,voters[voterId].uaddress);
+    }
+
 }
