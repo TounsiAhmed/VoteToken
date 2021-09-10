@@ -12,9 +12,8 @@ contract VoteToken is ERC721, Ownable {
   }
 
     event AddedCandidate(uint candidateID);
-    // describes a Voter, which has an id and the ID of the candidate they voted for
+    event AddedVoter(uint voterID);
     
-
     
     struct Voter {
         uint vId;
@@ -49,6 +48,7 @@ contract VoteToken is ERC721, Ownable {
         voters[voterID]=Voter(voterID,name,vaddress,false);
         if (balanceOf(voters[voterID].uaddress)==0)
                 _safeMint(voters[voterID].uaddress,voterID);
+        emit AddedVoter(voterID);
     }
     function getVoterId(address owner) public view returns(uint) {
         for (uint i = 1; i <= numVoters; ++i) {
@@ -68,6 +68,7 @@ contract VoteToken is ERC721, Ownable {
 
     modifier trueCandidate(uint id) {
         require(id <= numCandidates);
+        require(candidates[id].doesExist==true);
         _;
     }
     
